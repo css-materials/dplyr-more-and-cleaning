@@ -1,0 +1,157 @@
+---
+title: "Missing data"
+output: html_document
+author: Sabrina Nardin
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Code chunk
+
+* PC: Cntr + Alt + I
+* Mac: Cmd + Option + I
+
+Pipe
+
+* PC: Ctrl + Shift + M 
+* Mac: Cmd + Shift + M
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+
+```{r}
+data("penguins")
+```
+
+## Missing data: definitions
+
+Our book distinguishes missing data between: 
+* explicit: cells where you see a NA 
+* implicit: absent data (e.g., an entire row is absent because not collected, etc.) 
+
+In this tutorial, we focus on explicit missing data. I recommend [Chapter 18](https://r4ds.hadley.nz/missing-values) of "R for Data Science" for implicit data.
+
+Explicit missing data are "NA" (Not Available) or "NaN" (Not a Number).
+"NaN" generally results from mathematical operations with indeterminate values (e.g., `0/0` or `0 * Inf`). Both "NA" and "NaN" behave similarly in many contexts, though "NaN" specifically indicates issues arising from computations.
+
+Missing data ("NA") behavior: any operation involving an unknown value will be unknown. See our book [Chapter 12.2.2 Missing values](https://r4ds.hadley.nz/logicals#sec-na-comparison) for more. 
+ 
+```{r}
+NA > 5
+```
+
+```{r}
+mean(3 + 1 + 4 + NA)
+```
+
+
+## Ways to handle missing data in R
+
+Most common: 
+* `is.na()` 
+* `na_rm = TRUE`
+* `drop_na()`
+
+
+`is.na()` to identify missing data (detects both "NA" and "NaN"); returns TRUE for missing values and FALSE for anything else
+
+```{r}
+is.na(c(3, 4, NA, 12))
+```
+
+```{r}
+is.na(penguins$body_mass_g)
+```
+
+```{r}
+sum(is.na(penguins$body_mass_g))
+```
+
+```{r}
+# filter and missing data
+filter(penguins, is.na(sex))
+filter(penguins, !is.na(sex))
+
+# wrong code 
+# filter(penguins, sex == NA)
+```
+
+
+`na_rm = TRUE` to ignore missing values when performing a given operation; typically used with `summarize()` when calculating things like mean, sum, standard deviation (important: missing values are not dropped, they are just ignored for that given calculation)
+
+```{r}
+# summarize and missing data
+penguins %>%
+  summarize(avg_mass = mean(body_mass_g, na.rm = TRUE))
+```
+
+
+`drop_na()` to remove observations (rows) with missing values, in all columns or in specific ones
+```{r}
+penguins %>%
+  drop_na(body_mass_g) %>%
+  summarize(avg_mass = mean(body_mass_g))
+
+# check what happens if you do not drop them
+```
+
+```{r}
+penguins %>%
+  drop_na(body_mass_g) %>% 
+  filter(species == "Adelie") 
+```
+
+
+In all these cases, remember to save in a new dataframe (or "df" for short)!
+
+
+## Ways to fill or replace missing data in R
+
+See [Chapter 18](https://r4ds.hadley.nz/missing-values) of "R for Data Science".
+
+Main functions: 
+* `replace_na()` to replace missing data with some other value
+* `fill()` (from `tidyr`)
+* `coalesce()`
+
+
+## Factors and empty groups
+
+Example taken from [Chapter 18](https://r4ds.hadley.nz/missing-values) of "R for Data Science"
+
+Data of health info about people
+```{r}
+health <- tibble(
+  name   = c("Ikaia", "Oletta", "Leriah", "Dashay", "Tresaun"),
+  smoker = factor(c("no", "no", "no", "no", "no"), levels = c("yes", "no")),
+  age    = c(34, 88, 75, 47, 56),
+)
+```
+
+Count number of smokers
+```{r}
+health |> count(smoker)
+```
+Keep all groups, even those not observed in the data (the five people in this data are all non-smokers)
+```{r}
+health |> count(smoker, .drop = FALSE)
+```
+
+This is useful for plotting. Observe these two bar charts: 
+
+```{r}
+ggplot(health, aes(x = smoker)) +
+  geom_bar() +
+  scale_x_discrete()
+```
+
+```{r}
+ggplot(health, aes(x = smoker)) +
+  geom_bar() +
+  scale_x_discrete(drop = FALSE)
+```
