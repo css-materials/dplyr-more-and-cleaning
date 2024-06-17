@@ -46,7 +46,14 @@ NA > 5
 ```
 
 ```{r}
-mean(3 + 1 + 4 + NA)
+sum(3 + 1 + 4 + NA)
+```
+
+```{r}
+# mean(3+1+4+NA) won't work: what is inside mean() is first evaluated giving 8, thus mean(8) = 8
+
+mean(c(3,1,4))
+mean(c(3,1,4,NA))
 ```
 
 

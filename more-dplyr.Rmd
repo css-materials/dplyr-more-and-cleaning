@@ -149,10 +149,9 @@ penguins %>%
 
 `group_by()` aggregates categorical variables into their groups, often used together with summarize, because alone is not that useful (you want to group by and then calculate some summary statistics for each group); technically, you can use group_by with any type of variable (also numerical) but often it makes sense only for categorical variables
 ```{r}
-# group by alone?
+# group by alone? not that useful
 penguins %>% 
-  group_by(island, sex) %>% 
-  count()
+  group_by(island, sex)
 
 # group by and count
 penguins %>% 
