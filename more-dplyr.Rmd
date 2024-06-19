@@ -48,7 +48,7 @@ summary(penguins)
 
 ## Basic dplyr verbs
 
-### Selecting columns, filtering by row, reordering (both columns and rows)
+### Selecting columns (select), filtering by row (filter), reordering rows (arrange) and columns (relocate)
 
 `select()` extracts variables based on their names (operates on columns)
 ```{r}
@@ -110,8 +110,7 @@ penguins %>%
 ```
 
 
-`relocate()`: changes the order of variables based on their name (e.g., changes columns order)
-this is new (have not learned it yet, not in last week's slides)
+`relocate()`: changes the order of variables based on their name (e.g., changes columns order); this is new (have not learned it yet, not in last week's slides)
 ```{r}
 penguins %>%
   relocate(year, sex)
@@ -137,7 +136,7 @@ penguins %>%
 penguins %>% 
   summarize(body_mass_mean = mean(body_mass_g, na.rm = TRUE),
             body_mass_sd = sd(body_mass_g, na.rm = TRUE),
-            n = n())
+            n = n())  # n = nrow(penguins)
 
 penguins %>% 
   filter(species == "Gentoo") %>% 
@@ -157,12 +156,12 @@ penguins %>%
 penguins %>% 
   group_by(island, sex) %>% 
   #drop_na(sex) %>%
-  count()
+  count()pen
 
 #  group by and calculate mean body mass
 penguins %>% 
   group_by(island, sex) %>%
-  drop_na(sex) %>%
+  drop_na(sex) %>%  # add also drop_na(sex, body_mass_g)
   summarize(body_mass_mean = mean(body_mass_g))
 ```
 
@@ -189,7 +188,8 @@ penguins %>%
 ```
 
 
-`distinct()` removes duplicate rows https://dplyr.tidyverse.org/reference/distinct.html
+`distinct()` removes duplicate rows; returns unique rows from a dataframe based on specified columns, resulting in a dataframe with only unique combinations of those columns; https://dplyr.tidyverse.org/reference/distinct.html; 
+The `.keep_all = TRUE` parameter in the last example ensures that all columns are kept in the resulting data frame, not just the columns used for filtering.
 ```{r}
 penguins %>%
   distinct()
