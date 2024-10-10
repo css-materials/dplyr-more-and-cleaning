@@ -1,7 +1,8 @@
 ---
-title: "More dplyr"
+title: "Lecture 5. Deepen our understanding of `dplyr` verbs"
+author: "Sabrina Nardin"
 output: html_document
-author: Sabrina Nardin
+date: "2024-10-14"
 ---
 
 ```{r setup, include=FALSE}
