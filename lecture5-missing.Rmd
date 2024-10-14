@@ -1,45 +1,38 @@
 ---
-title: "Missing data"
+title: "Lecture 5. Missing data"
+author: "Sabrina Nardin"
 output: html_document
-author: Sabrina Nardin
+date: "2024-10-14"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Code chunk
 
-* PC: Cntr + Alt + I
-* Mac: Cmd + Option + I
+## Load libraries and data
 
-Pipe
-
-* PC: Ctrl + Shift + M 
-* Mac: Cmd + Shift + M
-
-```{r}
+```{r, message = FALSE}
 library(tidyverse)
 library(palmerpenguins)
 ```
-
 
 ```{r}
 data("penguins")
 ```
 
+
 ## Missing data: definitions
 
 Our book distinguishes missing data between: 
-* explicit: cells where you see a NA 
+* explicit: cells where you see a "NA" 
 * implicit: absent data (e.g., an entire row is absent because not collected, etc.) 
 
-In this tutorial, we focus on explicit missing data. I recommend [Chapter 18](https://r4ds.hadley.nz/missing-values) of "R for Data Science" for implicit data.
+In this tutorial, we focus on explicit missing data. I recommend reviewing [Chapter 18](https://r4ds.hadley.nz/missing-values) of "R for Data Science" for implicit data.
 
-Explicit missing data are "NA" (Not Available) or "NaN" (Not a Number).
-"NaN" generally results from mathematical operations with indeterminate values (e.g., `0/0` or `0 * Inf`). Both "NA" and "NaN" behave similarly in many contexts, though "NaN" specifically indicates issues arising from computations.
+Explicit missing data are "NA" (Not Available) or "NaN" (Not a Number). Both "NA" and "NaN" behave similarly in many contexts, though "NaN" specifically indicates issues arising from computations. "NaN" generally results from mathematical operations with indeterminate values (e.g., `0/0` or `0 * Inf`). 
 
-Missing data ("NA") behavior: any operation involving an unknown value will be unknown. See our book [Chapter 12.2.2 Missing values](https://r4ds.hadley.nz/logicals#sec-na-comparison) for more. 
+Missing data behavior: any operation involving an unknown value will be unknown. See our book [Chapter 12.2.2 Missing values](https://r4ds.hadley.nz/logicals#sec-na-comparison) for more. 
  
 ```{r}
 NA > 5
@@ -50,16 +43,15 @@ sum(3 + 1 + 4 + NA)
 ```
 
 ```{r}
-# mean(3+1+4+NA) won't work: what is inside mean() is first evaluated giving 8, thus mean(8) = 8
-
 mean(c(3,1,4))
 mean(c(3,1,4,NA))
 ```
 
 
-## Ways to handle missing data in R
+## handle missing data in R
 
-Most common: 
+Most common ways to handle missing data: 
+
 * `is.na()` 
 * `na_rm = TRUE`
 * `drop_na()`
@@ -72,10 +64,12 @@ is.na(c(3, 4, NA, 12))
 ```
 
 ```{r}
+# do not display this output
 is.na(penguins$body_mass_g)
 ```
 
 ```{r}
+# much better
 sum(is.na(penguins$body_mass_g))
 ```
 
@@ -89,7 +83,7 @@ filter(penguins, !is.na(sex))
 ```
 
 
-`na_rm = TRUE` to ignore missing values when performing a given operation; typically used with `summarize()` when calculating things like mean, sum, standard deviation (important: missing values are not dropped, they are just ignored for that given calculation)
+`na_rm = TRUE` to ignore missing values when performing a given operation; typically used with `summarize()` when calculating things like mean, sum, standard deviation. Important: here missing values are not dropped, they are just ignored for that given calculation
 
 ```{r}
 # summarize and missing data
@@ -98,7 +92,7 @@ penguins %>%
 ```
 
 
-`drop_na()` to remove observations (rows) with missing values, in all columns or in specific ones
+`drop_na()` to remove observations (rows) with missing values, in all columns or in specific ones. 
 ```{r}
 penguins %>%
   drop_na(body_mass_g) %>%
@@ -113,8 +107,7 @@ penguins %>%
   filter(species == "Adelie") 
 ```
 
-
-In all these cases, remember to save in a new dataframe (or "df" for short)!
+In all these cases, remember to save your output in a new dataframe (or "df" for short)
 
 
 ## Ways to fill or replace missing data in R
@@ -138,19 +131,20 @@ health <- tibble(
   smoker = factor(c("no", "no", "no", "no", "no"), levels = c("yes", "no")),
   age    = c(34, 88, 75, 47, 56),
 )
+health
 ```
 
 Count number of smokers
 ```{r}
 health |> count(smoker)
 ```
+
 Keep all groups, even those not observed in the data (the five people in this data are all non-smokers)
 ```{r}
 health |> count(smoker, .drop = FALSE)
 ```
 
-This is useful for plotting. Observe these two bar charts: 
-
+This is useful for plotting. Observe the difference between these two bar charts: 
 ```{r}
 ggplot(health, aes(x = smoker)) +
   geom_bar() +

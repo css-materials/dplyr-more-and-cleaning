@@ -9,199 +9,124 @@ date: "2024-10-14"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Code chunk
+Shortcuts to insert a Code Chunk
 
 * PC: Cntr + Alt + I
 * Mac: Cmd + Option + I
 
-Pipe
+Shortcuts to insert a Pipe
 
 * PC: Ctrl + Shift + M 
 * Mac: Cmd + Shift + M
+
+
+## Load libraries and data
 
 ```{r}
 library(tidyverse)
 library(palmerpenguins)
 ```
 
-
 ```{r}
 data("penguins")
 ```
 
-
 ## Explore the data
 
 ```{r}
-# head and tail
-head(penguins)
-tail(penguins)
-rbind(head(penguins, 5), tail(penguins, 5))
-glimpse(penguins)
+
 ```
 
 ```{r}
-# dataset summaries
-str(penguins)
-summary(penguins)
+
 ```
 
 
 ## Basic dplyr verbs
 
-### Selecting columns (select), filtering by row (filter), reordering rows (arrange) and columns (relocate)
+### Selecting columns (select) and filtering rows (filter)
 
 `select()` extracts variables based on their names (operates on columns)
+
 ```{r}
-# select two specific variables using their names
-select(penguins, species, body_mass_g)
 
-# select all variables except two using the minus sign
-select(penguins, -year, -island)
-
-# select a range of contiguous/adjacent variables
-select(penguins, species:bill_length_mm)
-
-# select all variables except a range of contiguous ones
-select(penguins, -(species:island))
-
-# starts with
-select(penguins, starts_with("bill"))
-
-# ends with
-select(penguins, ends_with("mm"))
 ```
 
 
-`filter()` extracts observations based on their values (operates on rows); logical operators are commonly used with it 
+`filter()` extracts observations based on their values (operates on rows); logical operators are commonly used with `filter()`
+
 ```{r}
-# ways to check variable values 
-levels(penguins$species) 
-unique(penguins$species)
-count(penguins, species)
 
-# filter by island and species
-filter(penguins, (island == "Biscoe" & species == "Gentoo"))
-filter(penguins, island == "Biscoe", species == "Gentoo")
-
-# filter by multiple conditions
-filter(penguins, species %in% c("Adelie", "Gentoo"), island != "Biscoe")
 ```
 
 
 `select()` + `filter()`
+
 ```{r}
-penguins %>% 
-  select(species, sex, year, island) %>% 
-  filter(island == "Torgersen")
+
 ```
 
+
+### Reordering rows (arrange) and reordering columns (relocate)
 
 `arrange()` changes the order of observations based on their values (e.g., changes rows order)
-```{r}
-penguins %>%
-  select(species, contains("bill")) %>%
-  filter(!species == "Adelie") %>% 
-  arrange(desc(bill_length_mm)) 
 
-penguins %>%
-  select(species, contains("bill")) %>%
-  filter(!species == "Adelie") %>% 
-  arrange(desc(species), bill_length_mm)
+```{r}
+
 ```
 
+`relocate()`: changes the order of variables based on their name (e.g., changes columns order); this is new (not in last week's slides)
 
-`relocate()`: changes the order of variables based on their name (e.g., changes columns order); this is new (have not learned it yet, not in last week's slides)
 ```{r}
-penguins %>%
-  relocate(year, sex)
 
-penguins %>% 
-  relocate(year, .after = island)
 ```
 
 
 ### Manipulating variables and doing operations with them
 
-`mutate()` creates new columns from existing ones or modify existing ones; it does not reduce the dimensions of the original data; https://dplyr.tidyverse.org/reference/mutate.html
-```{r}
-penguins %>% 
-  mutate(bill_ratio = bill_length_mm / bill_depth_mm)
+`mutate()` creates new columns from existing ones or modifies existing ones; it does not reduce the dimensions of the original data; https://dplyr.tidyverse.org/reference/mutate.html
 
-# remember to save data into the df! dply functions do not modify variables in-place!
+```{r}
+
 ```
 
 
 `summarize()` collapses the data to a smaller number of rows to summarize the original data; you can use summarize to create all sort of summary statistics; https://dplyr.tidyverse.org/reference/summarise.html
-```{r}
-penguins %>% 
-  summarize(body_mass_mean = mean(body_mass_g, na.rm = TRUE),
-            body_mass_sd = sd(body_mass_g, na.rm = TRUE),
-            n = n())  # n = nrow(penguins)
 
-penguins %>% 
-  filter(species == "Gentoo") %>% 
-  summarize(body_mass_mean = mean(body_mass_g, na.rm = TRUE),
-            body_mass_sd = sd(body_mass_g, na.rm = TRUE),
-            body_mass_count = n())
+```{r}
+
 ```
 
 
-`group_by()` aggregates categorical variables into their groups, often used together with summarize, because alone is not that useful (you want to group by and then calculate some summary statistics for each group); technically, you can use group_by with any type of variable (also numerical) but often it makes sense only for categorical variables
+`group_by()` aggregates categorical variables into their groups, often used together with summarize, because alone is not that useful (you want to group by and then calculate some summary statistics for each group); technically, you can use group_by with any type of variable (also numerical) but often it makes sense to use it only for categorical variables
+
 ```{r}
-# group by alone? not that useful
-penguins %>% 
-  group_by(island, sex)
 
-# group by and count
-penguins %>% 
-  group_by(island, sex) %>% 
-  #drop_na(sex) %>%
-  count()pen
-
-#  group by and calculate mean body mass
-penguins %>% 
-  group_by(island, sex) %>%
-  drop_na(sex) %>%  # add also drop_na(sex, body_mass_g)
-  summarize(body_mass_mean = mean(body_mass_g))
 ```
 
+
+### New verbs:
 
 `count()` counts total observations by group
-```{r}
-# total penguins by sex without count
-penguins %>% 
-  group_by(sex) %>% 
-  summarize(total = n())
 
-# with count
-penguins %>% 
-  count(sex)
+```{r}
+
 ```
 
-
-New verbs (that we did not mention last week):
 
 `n_distinct()` counts the number of unique values in a given column, used together with summarize
+
 ```{r}
-penguins %>%
-  summarise(num_species = n_distinct(species))
+
 ```
 
 
-`distinct()` removes duplicate rows; returns unique rows from a dataframe based on specified columns, resulting in a dataframe with only unique combinations of those columns; https://dplyr.tidyverse.org/reference/distinct.html; 
-The `.keep_all = TRUE` parameter in the last example ensures that all columns are kept in the resulting data frame, not just the columns used for filtering.
+`distinct()` returns unique rows from a dataframe based on specified columns, resulting in a dataframe with only unique combinations of those columns; https://dplyr.tidyverse.org/reference/distinct.html; 
+
 ```{r}
-penguins %>%
-  distinct()
 
-penguins %>%
-  distinct(species, island)
-
-# remove duplicate rows based on variable species
-penguins %>%
-  distinct(species, .keep_all = TRUE)
 ```
+
 Other than dplyr functions, R has "base" functions to deal with duplicates elements such as `duplicated()` for identifying them and `unique()` for extracting them.
 
 

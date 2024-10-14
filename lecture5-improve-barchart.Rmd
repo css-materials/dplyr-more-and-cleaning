@@ -1,0 +1,60 @@
+---
+title: "Improve the bar chart from Lecture 4 using `scorecard` data"
+output: html_document
+author: Sabrina Nardin
+---
+
+Load libraries and data
+```{r, message = FALSE}
+library(tidyverse)
+library(rcis)
+data(scorecard)
+```
+
+Check
+```{r}
+glimpse(scorecard)
+```
+
+This is the code to reproduce the same plot from TASK 4 of Lecture 4:
+```{r barplot_cat}
+ggplot(scorecard,
+  mapping = aes( x = type, fill = state)) +
+  geom_bar(position = "stack")
+```
+
+This (stacked) bar chart represents the total number of schools in the U.S. by school type (n = 3) and by state (n = 54). We have two categorical variables: `type` and `state`.
+
+Each bar represents one category of a categorical variable, and is divided into segments representing the categories of the other categorical variable. But although it is not wrong, this is not a good graph: it is visually crowded and as such is not as informative as it could be.
+
+Does swapping the x and y axes and adjusting the legend (by rotating the labels) result in a more effective bar chart? Notice I am also adding titles and axis labels for enhanced clarity (not necessary in truly exploratory graphs!):
+```{r barplot_cat_2}
+ggplot(scorecard,
+  mapping = aes(x = state,
+                fill = type)) +
+  geom_bar(position = "stack") +
+  labs(
+    title = "Number of Schools by State and Type",
+    x = "State",
+    y = "Count",
+    fill = "School Type"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.5))
+```
+
+This is a bit better, but we’re still not quite there! The point is that there’s only so much we can do with `ggplot2`: if the problem lies in the input data, we need to use `dplyr` to manipulate the variables *before* visualizing them!
+
+For example, I would aggregate the 54 states using some meaningful criteria (decided by the researcher) and then display them. 
+
+**Task: group current U.S. states (variable `state`) into four U.S. regions (create a new variable `region`) and label the regions as "Northeast", "Midwest", "South", "West". Then create a bar chart using the regions (vs. states) and school types**
+
+Hint: You might want to define categories manually, using `mutate()` and `case_when()`, then use other dplyr functions to summarize the aggregated number of schools by region
+
+```{r}
+# add as many code chuncks as you'd like
+```
+
+```{r}
+
+```
+
