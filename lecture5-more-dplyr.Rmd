@@ -134,50 +134,9 @@ Other than dplyr functions, R has "base" functions to deal with duplicates eleme
 
 Examples with and without `across()` with numerical variables
 ```{r}
-# mean for a bunch of variables 
-penguins %>%
-  summarize(
-    mean_bill_length_mm = mean(bill_length_mm, na.rm = TRUE),
-    mean_bill_depth_mm = mean(bill_depth_mm, na.rm = TRUE),
-    mean_flipper_length_mm = mean(flipper_length_mm, na.rm = TRUE),
-    mean_body_mass_g = mean(body_mass_g, na.rm = TRUE)
-  )
 
-# same operation with across
-penguins %>%
-  summarize(
-    across(
-      c(bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g), 
-      ~ mean(.x, na.rm = TRUE)  # function(x) mean(x, na.rm = TRUE)
-    ))
 ```
 
 Examples with and without `across()` with categorical variables
 ```{r}
-# number of distinct entries for columns without across
-penguins %>%
-  summarise(distinct_species = n_distinct(species),
-            distinct_island = n_distinct(island),
-            distinct_year = n_distinct(year))
 
-# number of distinct entries for columns with across
-penguins %>%
-  summarise(across(c(species, island, year), 
-                   n_distinct))
-
-# the opposite
-penguins %>%
-  summarise(across(-c(species, island, year), 
-                   n_distinct))
-
-# everything
-penguins %>%
-  summarise(across(everything(), 
-                   n_distinct))
-
-# everything with sum of na
-penguins %>%
-  summarise(across(everything(), 
-                   ~sum(is.na(.))
-                   ))
-```
